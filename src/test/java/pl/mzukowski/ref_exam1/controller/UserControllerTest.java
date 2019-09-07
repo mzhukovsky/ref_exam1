@@ -1,7 +1,7 @@
 package pl.mzukowski.ref_exam1.controller;
 
-import pl.mzukowski.ref_exam1.entity.Person;
-import pl.mzukowski.ref_exam1.entity.User;
+import pl.mzukowski.ref_exam1.user.entity.Person;
+import pl.mzukowski.ref_exam1.user.entity.User;
 import pl.mzukowski.ref_exam1.user.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.core.Is;
@@ -16,9 +16,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -32,43 +32,45 @@ public class UserControllerTest {
     private UserRepository userRepository;
 
     @Test
-    public void addUser() throws Exception {
+    public void addUserAndFind() throws Exception {
         // given
-        final String password = "passsword";
-        final String username = "username";
+        final String login = "login_test";
+        final String password = "password_test";
 
-        //
-        mockMvc.perform(MockMvcRequestBuilders.post("/user/register")
+        //when
+        mockMvc.perform(post("/user/register")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content("{" +
-                        "\"idd\":\"1\","  +
-                        "\"username\":\"" + username + "\"," +
+                        "\"login\":\"" + login + "\"," +
                         "\"password\":\"" + password + "\"" +
                         "}")
         ).andDo(print());
 
-        userRepository.flush();
-
+        //and
         final Long userId = userRepository.findAll().iterator().next().getId();
 
+        //expect
         mockMvc.perform(get("/user/"+userId))
-                .andExpect(MockMvcResultMatchers.jsonPath("username", Is.is(username)));
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("login", Is.is(login)))
+                .andExpect(jsonPath("id", Is.is(userId.toString())));
     }
 
     @Test
     public void updateUser() throws Exception {
         User user = new User();
         user.setName("test");
-        user.setUsername("test");
+        user.setLastName("test");
         user.setPassword("test");
 
         user = userRepository.save(user);
 
         mockMvc.perform(put("/user").contentType(APPLICATION_JSON_UTF8).content(
                 "{\"username\":\"userBla\",\"password\":\"test\"}"
-        )).andExpect(MockMvcResultMatchers.jsonPath("username", Is.is("userBla")));
+        )).andExpect(jsonPath("username", Is.is("userBla")));
 
-        Assertions.assertThat(userRepository.findUserByPassword("test")).isPresent()
+        Assertions.assertThat(userRepository.findUserByLogin("test")).isPresent()
                 .map(Person::getName)
                 .hasValue("userBla");
     }

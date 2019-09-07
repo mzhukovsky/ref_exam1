@@ -1,4 +1,4 @@
-package pl.mzukowski.ref_exam1.entity;
+package pl.mzukowski.ref_exam1.user.entity;
 
 import lombok.Data;
 
@@ -8,8 +8,6 @@ import javax.persistence.*;
 @Data
 @DiscriminatorValue("USER")
 public class User extends Person {
-
-    private String username;
-
+    private String login;
     private String password;
 }

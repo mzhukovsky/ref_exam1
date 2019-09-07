@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/user/register")
 @RequiredArgsConstructor
-class RegisterUserController {
+class UserRegisterController {
 
     private final UserCreator userCreator;
 
