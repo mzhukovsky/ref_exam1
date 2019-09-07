@@ -2,7 +2,7 @@ package pl.mzukowski.ref_exam1.controller;
 
 import pl.mzukowski.ref_exam1.entity.Person;
 import pl.mzukowski.ref_exam1.entity.User;
-import pl.mzukowski.ref_exam1.repository.UserRepository;
+import pl.mzukowski.ref_exam1.user.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.core.Is;
 import org.junit.Test;
@@ -33,11 +33,15 @@ public class UserControllerTest {
 
     @Test
     public void addUser() throws Exception {
+        // given
         final String password = "passsword";
         final String username = "username";
-        mockMvc.perform(MockMvcRequestBuilders.post("/user")
+
+        //
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/register")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content("{" +
+                        "\"idd\":\"1\","  +
                         "\"username\":\"" + username + "\"," +
                         "\"password\":\"" + password + "\"" +
                         "}")

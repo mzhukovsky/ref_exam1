@@ -1,10 +1,9 @@
-package pl.mzukowski.ref_exam1.controller;
+package pl.mzukowski.ref_exam1.user;
 
-import pl.mzukowski.ref_exam1.dto.AddUserDto;
 import pl.mzukowski.ref_exam1.entity.User;
-import pl.mzukowski.ref_exam1.service.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import pl.mzukowski.ref_exam1.user.register.AddUserDto;
 
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
@@ -14,12 +13,6 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 public class UserController {
     private final UserServiceImpl userService;
-
-    @PostMapping
-    @ResponseStatus(NO_CONTENT)
-    public void addUser(@RequestBody AddUserDto addUserDto) {
-        userService.saveUser(addUserDto);
-    }
 
     @PutMapping
     @ResponseStatus(OK)

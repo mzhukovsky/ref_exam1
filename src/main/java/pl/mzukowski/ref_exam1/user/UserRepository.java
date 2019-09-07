@@ -1,4 +1,4 @@
-package pl.mzukowski.ref_exam1.repository;
+package pl.mzukowski.ref_exam1.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.mzukowski.ref_exam1.entity.Person;
