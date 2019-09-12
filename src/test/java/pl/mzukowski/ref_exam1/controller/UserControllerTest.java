@@ -1,5 +1,7 @@
 package pl.mzukowski.ref_exam1.controller;
 
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import pl.mzukowski.ref_exam1.user.entity.Person;
 import pl.mzukowski.ref_exam1.user.entity.User;
 import pl.mzukowski.ref_exam1.user.UserRepository;
@@ -12,9 +14,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -36,42 +37,68 @@ public class UserControllerTest {
         // given
         final String login = "login_test";
         final String password = "password_test";
-
-        //when
         mockMvc.perform(post("/user/register")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content("{" +
                         "\"login\":\"" + login + "\"," +
                         "\"password\":\"" + password + "\"" +
-                        "}")
-        ).andDo(print());
-
-        //and
+                        "}"))
+                .andDo(print());
         final Long userId = userRepository.findAll().iterator().next().getId();
 
-        //expect
-        mockMvc.perform(get("/user/"+userId))
-                .andExpect(status().is2xxSuccessful())
+        //when
+        ResultActions result = mockMvc.perform(get("/user/" + userId));
+
+        //then
+        result.andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("login", Is.is(login)))
                 .andExpect(jsonPath("id", Is.is(userId.toString())));
     }
 
     @Test
+    public void tryFindUserAndGetException() throws Exception {
+        // given
+        final Integer userId = 1;
+
+        //when
+        final ResultActions result = mockMvc.perform(get("/user/" + userId));
+
+        //then
+        result.andExpect(content().contentType(APPLICATION_JSON_UTF8));
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
     public void updateUser() throws Exception {
+        // given
         User user = new User();
-        user.setName("test");
-        user.setLastName("test");
-        user.setPassword("test");
+        user.setName("name_test");
+        user.setLastName("lastname_test");
+        user.setLogin("login_test");
+        user.setPassword("password_test");
+        User newUser = userRepository.save(user);
+        String newName = "new_name";
+        String newLastName =  "new_lastname";
 
-        user = userRepository.save(user);
+        // when
+        final ResultActions result = mockMvc.perform(put("/user").contentType(APPLICATION_JSON_UTF8)
+                .content("{" +
+                        "\"id\":\""+ newUser.getId() +"\"," +
+                        "\"name\":\""+ newName +"\"," +
+                        "\"lastName\":\""+ newLastName +"\"" +
+                        "}"))
+                .andDo(print());
 
-        mockMvc.perform(put("/user").contentType(APPLICATION_JSON_UTF8).content(
-                "{\"username\":\"userBla\",\"password\":\"test\"}"
-        )).andExpect(jsonPath("username", Is.is("userBla")));
-
-        Assertions.assertThat(userRepository.findUserByLogin("test")).isPresent()
+        //then
+        result.andExpect(jsonPath("id", Is.is(newUser.getId().toString())));
+        assertThat(userRepository.findUserByLogin("login_test"))
+                .isPresent()
                 .map(Person::getName)
-                .hasValue("userBla");
+                .hasValue(newName);
+        assertThat(userRepository.findUserByLogin("login_test"))
+                .isPresent()
+                .map(Person::getLastName)
+                .hasValue(newLastName);
     }
 }

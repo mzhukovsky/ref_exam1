@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserModifierController {
+class UserModifierController {
 
     private final UserModifier userModifier;
 
