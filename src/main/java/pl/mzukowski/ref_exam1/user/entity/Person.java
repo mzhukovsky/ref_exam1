@@ -1,4 +1,4 @@
-package pl.mzukowski.ref_exam1.entity;
+package pl.mzukowski.ref_exam1.user.entity;
 
 import lombok.Data;
 
@@ -13,4 +13,6 @@ public abstract class Person {
     private Long id;
 
     private String name;
+    private String lastName;
+
 }
